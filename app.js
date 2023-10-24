@@ -30,10 +30,23 @@ const getUrl = (keyword, start, end, index = 1) => {
 // 获取页面中列表的url
 const getDetailUrlList = async (page, url) => {
   page.goto(url, { waitUntil: 'networkidle0' })
-  await new Promise((resolve) => { setTimeout(resolve, 10000) })
-  await page.waitForSelector('.vT-srch-result-list-bid', { visible: true })
+  await new Promise((resolve) => { setTimeout(resolve, Math.ceil(Math.random()*10) * 1000  + 10000) })
+  const pageContainer = await page.$$('body>div')
+  const pageLast = pageContainer[pageContainer.length - 1]
+  const pageSpan = await pageLast.$eval('div:first-child div p', el => el.innerText);
+  const spans1 = pageSpan.split('找到')
+  const spans2 = spans1[1].split('条内容')
+  const number = spans2[0].trim()
+  console.log('number', number)
+  if(number == 0) {
+    console.log('无列表')
+    return {
+      list: [],
+      pageTotal: 0
+    }
+  }
+
   const listContainer = await page.$$('.vT-srch-result-list-bid li')
-  const pageContainer = await page.$$('.pager a') || []
   let pageTotal = pageContainer.length ? pageContainer.length -2 : 0
   let list = []
   for (let i = 0; i < listContainer.length; i++) {
@@ -63,7 +76,7 @@ const searchPage = async (page, keyword, start, end) => {
 
 // 获取详情页的链接
 const getDetailUrl = async (page) => {
-  const keyword = '综合治税'
+  const keyword = '资金分析'
   let start = ':01:01'
   let end = ':12:31'
   const detailList = []
